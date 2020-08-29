@@ -52,12 +52,12 @@ class fetch_real_208to203SM(Behavior):
 		# x:26 y:401, x:564 y:234
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.pick_waypoint = Pose2D(-1.057, 5.051, 1.826)
-		_state_machine.userdata.place_waypoint = Pose2D(-10.58, -17.543, 1.185)
+		_state_machine.userdata.place_waypoint = Pose2D(-10.58, -17.608, -1.468)
 		_state_machine.userdata.picking_state = [0.385, 0.476, 1.266, -0.722, 1.954, -1.708, 2.0197, -1.415]
 		_state_machine.userdata.prepare_state = [0.337, 1.334, 1.328, -0.145, 1.811, 0.0, 1.639, 0.042]
 		_state_machine.userdata.start_point = Point(0.8, 0.0, 0.6)
 		_state_machine.userdata.look_up_point = Point(2.0, 0.0, 1.1)
-		_state_machine.userdata.see_apriltag = Point(0.8, 0.3, 0.7)
+		_state_machine.userdata.see_apriltag = Point(0.8, 0.2, 0.7)
 		_state_machine.userdata.init_joints = [0.3675, 1.5585, 1.421, -0.1457, 1.1609, -0.027, 1.966, -1.371]
 
 		# Additional creation code can be added inside the following tags
