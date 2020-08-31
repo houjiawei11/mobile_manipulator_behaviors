@@ -8,9 +8,9 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from flexbe_navigation_states.move_base_state import MoveBaseState
-from mobile_manipulator_flexbe_states.detect_obj_srv_state import DetectObjState
 from flexbe_manipulation_states.moveit_to_joints_state import MoveitToJointsState
+from mobile_manipulator_flexbe_states.detect_obj_srv_state import DetectObjState
+from flexbe_navigation_states.move_base_state import MoveBaseState
 from mobile_manipulator_flexbe_states.head_actionlib_state import HeadActionState
 from mobile_manipulator_flexbe_states.pick_srv_state import PickState
 from mobile_manipulator_flexbe_states.detect_plane_srv_state import DetectPlaneState
@@ -52,13 +52,14 @@ class fetch_real_208to203SM(Behavior):
 		# x:26 y:401, x:564 y:234
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.pick_waypoint = Pose2D(-1.057, 5.051, 1.826)
-		_state_machine.userdata.place_waypoint = Pose2D(-10.58, -17.608, -1.468)
+		_state_machine.userdata.place_waypoint = Pose2D(-10.65, -17.47, -1.468)
 		_state_machine.userdata.picking_state = [0.385, 0.476, 1.266, -0.722, 1.954, -1.708, 2.0197, -1.415]
 		_state_machine.userdata.prepare_state = [0.337, 1.334, 1.328, -0.145, 1.811, 0.0, 1.639, 0.042]
 		_state_machine.userdata.start_point = Point(0.8, 0.0, 0.6)
 		_state_machine.userdata.look_up_point = Point(2.0, 0.0, 1.1)
 		_state_machine.userdata.see_apriltag = Point(0.8, 0.2, 0.7)
 		_state_machine.userdata.init_joints = [0.3675, 1.5585, 1.421, -0.1457, 1.1609, -0.027, 1.966, -1.371]
+		_state_machine.userdata.prepare_state2 = [1.334, 1.328, -0.145, 1.811, 0.0, 1.639, 0.042]
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -67,12 +68,12 @@ class fetch_real_208to203SM(Behavior):
 
 
 		with _state_machine:
-			# x:833 y:506
-			OperatableStateMachine.add('nav_place',
-										MoveBaseState(),
-										transitions={'arrived': 'find_apriltag', 'failed': 'failed'},
-										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'waypoint': 'place_waypoint'})
+			# x:25 y:72
+			OperatableStateMachine.add('init_arm_pose',
+										MoveitToJointsState(move_group='arm_with_torso', joint_names=['torso_lift_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint'], action_topic='/move_group'),
+										transitions={'reached': 'look_down', 'planning_failed': 'failed', 'control_failed': 'failed'},
+										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
+										remapping={'joint_config': 'prepare_state'})
 
 			# x:1102 y:44
 			OperatableStateMachine.add('detect_obj',
@@ -142,17 +143,17 @@ class fetch_real_208to203SM(Behavior):
 
 			# x:177 y:249
 			OperatableStateMachine.add('finished_state',
-										MoveitToJointsState(move_group='arm_with_torso', joint_names=['torso_lift_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint'], action_topic='/move_group'),
+										MoveitToJointsState(move_group='arm', joint_names=['shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint'], action_topic='/move_group'),
 										transitions={'reached': 'finished', 'planning_failed': 'failed', 'control_failed': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
-										remapping={'joint_config': 'prepare_state'})
+										remapping={'joint_config': 'prepare_state2'})
 
-			# x:25 y:72
-			OperatableStateMachine.add('init_arm_pose',
-										MoveitToJointsState(move_group='arm_with_torso', joint_names=['torso_lift_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint'], action_topic='/move_group'),
-										transitions={'reached': 'look_down', 'planning_failed': 'failed', 'control_failed': 'failed'},
-										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off},
-										remapping={'joint_config': 'prepare_state'})
+			# x:833 y:506
+			OperatableStateMachine.add('nav_place',
+										MoveBaseState(),
+										transitions={'arrived': 'find_apriltag', 'failed': 'failed'},
+										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'waypoint': 'place_waypoint'})
 
 
 		return _state_machine
